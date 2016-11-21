@@ -1,19 +1,28 @@
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class MusicPlayer extends Application {
 	
 	public boolean playing;
 	MediaPlayer player;
+	Text information;
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -25,9 +34,12 @@ public class MusicPlayer extends Application {
 		
 		// ui textbox
 		Text songDuration = new Text();
-		songDuration.setText("Lied lengte");
-		StackPane root = new StackPane();
-		root.getChildren().add(songDuration);
+		information = new Text();
+		songDuration.setText("");
+		information.setText("hier komt info");
+		Slider volumeSlider = new Slider(0, 1, 1);
+		VBox root = new VBox();
+		root.getChildren().addAll(information, songDuration, volumeSlider);
 		Scene scene = new Scene(root, 300, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -38,6 +50,9 @@ public class MusicPlayer extends Application {
 			public void run() {
 				playing = false;
 				System.out.println("Song ended");
+				// Gooi het nummer van de database lijst af
+				// Start het volgende nummer op de lijst
+				
 			}
 		});
 		
@@ -46,7 +61,7 @@ public class MusicPlayer extends Application {
 			public void run() {
 				player.play();
 				playing = true;
-				System.out.println(song.getDuration().toSeconds());
+				setInformation();		
 			}
 		});
 		
@@ -57,14 +72,29 @@ public class MusicPlayer extends Application {
 				float current = (float)player.getCurrentTime().toSeconds();
 				if(current > 0) {
 					float percentage = (current/total)*100;
-					songDuration.setText("PLAYING: " + current + " : " + total + "   " + percentage + "%");
+					String strTotal = String.format("%.0f", total);
+					String strCurrent = String.format("%.0f", current);
+					String strPercentage = String.format("%.2f", percentage);
+					songDuration.setText("PLAYING: " + strCurrent + " : " + strTotal + " seconden   " + strPercentage + "%");
 				}
-				
 			}
 		}, 0, 1000);
+		
+		volumeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+			public void changed(ObservableValue<? extends Number> ov,
+					Number old_val, Number new_val) {
+						player.setVolume(new_val.doubleValue());
+			}
+		});
+		
 	}
 	
 	public static void main(String[] args) {
 		launch(args);
+	}
+	
+	public void setInformation() {
+		Media currentSong = player.getMedia();
+		information.setText("Hier kan nog data komen van de database");
 	}
 }
