@@ -23,17 +23,15 @@ public class MusicPlayer extends Application {
 	public boolean playing;
 	MediaPlayer player;
 	Text information;
+	Text songDuration;
+	Media song;
 	
 	@Override
 	public void start(Stage primaryStage) {
-		String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/TomOdell-Magnetised.mp3";
-		Media song = new Media(path);
-		//System.out.println(song.getDuration().toSeconds());
-		player = new MediaPlayer(song);
-		//player.play();
+
 		
 		// ui textbox
-		Text songDuration = new Text();
+		songDuration = new Text();
 		information = new Text();
 		songDuration.setText("");
 		information.setText("hier komt info");
@@ -43,27 +41,7 @@ public class MusicPlayer extends Application {
 		Scene scene = new Scene(root, 300, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		System.out.println(song.getDuration().toSeconds());
-		
-		player.setOnEndOfMedia(new Runnable() {
-			@Override
-			public void run() {
-				playing = false;
-				System.out.println("Song ended");
-				// Gooi het nummer van de database lijst af
-				// Start het volgende nummer op de lijst
-				
-			}
-		});
-		
-		player.setOnReady(new Runnable() {
-			@Override
-			public void run() {
-				player.play();
-				playing = true;
-				setInformation();		
-			}
-		});
+		play();
 		
 		new Timer().schedule(new TimerTask() {
 			@Override
@@ -86,6 +64,35 @@ public class MusicPlayer extends Application {
 						player.setVolume(new_val.doubleValue());
 			}
 		});
+	}
+		public void play() {
+			String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Best10SecIntroSound.mp3";
+			song = new Media(path);
+			//System.out.println(song.getDuration().toSeconds());
+			player = new MediaPlayer(song);
+			//player.play();
+			
+		player.setOnEndOfMedia(new Runnable() {
+			@Override
+			public void run() {
+				playing = false;
+				System.out.println("Song ended");
+				player.stop();
+				// haal hier de volgende uit de database, evt play met een string starten
+				play();
+			}
+		});
+		
+		player.setOnReady(new Runnable() {
+			@Override
+			public void run() {
+				player.play();
+				playing = true;
+				setInformation();		
+			}
+		});
+		
+
 		
 	}
 	
@@ -95,6 +102,6 @@ public class MusicPlayer extends Application {
 	
 	public void setInformation() {
 		Media currentSong = player.getMedia();
-		information.setText("Hier kan nog data komen van de database");
+		information.setText("" + player.getStatus());
 	}
 }
