@@ -1,3 +1,8 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
@@ -25,10 +30,12 @@ public class MusicPlayer extends Application {
 	Text information;
 	Text songDuration;
 	Media song;
+	static ArrayList<String> huidigeList;
 	
 	@Override
 	public void start(Stage primaryStage) {
-
+		
+		huidigeList = getHuidigeList();
 		
 		// ui textbox
 		songDuration = new Text();
@@ -41,7 +48,7 @@ public class MusicPlayer extends Application {
 		Scene scene = new Scene(root, 300, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		play();
+		play(huidigeList.get(0));
 		
 		new Timer().schedule(new TimerTask() {
 			@Override
@@ -65,8 +72,9 @@ public class MusicPlayer extends Application {
 			}
 		});
 	}
-		public void play() {
-			String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Best10SecIntroSound.mp3";
+		public void play(String url) {
+			//String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Best10SecIntroSound.mp3";
+			String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3";
 			song = new Media(path);
 			//System.out.println(song.getDuration().toSeconds());
 			player = new MediaPlayer(song);
@@ -79,7 +87,7 @@ public class MusicPlayer extends Application {
 				System.out.println("Song ended");
 				player.stop();
 				// haal hier de volgende uit de database, evt play met een string starten
-				play();
+				play(nextSong());
 			}
 		});
 		
@@ -95,6 +103,42 @@ public class MusicPlayer extends Application {
 
 		
 	}
+		
+	public static String nextSong() {
+		String tmpFirst = huidigeList.get(0);
+		huidigeList.remove(0);
+		String urlSong = huidigeList.get(0);
+		huidigeList.add(tmpFirst);
+		return urlSong;
+	}
+
+	public static ArrayList<String> getHuidigeList() {
+		ArrayList<String> huidigeLijst = new ArrayList<>();
+		BufferedReader file = null;
+		try {
+			file = new BufferedReader(new FileReader("C:/Users/Student/workspace/PubSongDesktop/src/huidigAfspeellijst.txt"));
+		    StringBuilder sb = new StringBuilder();
+		    String line = file.readLine();
+
+		    while (line != null) {
+		    	if(!line.isEmpty()) {
+		    		huidigeLijst.add(line);
+		    	}
+		        //sb.append(System.lineSeparator());
+		        line = file.readLine();
+		    }
+		    //String everything = sb.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				file.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return huidigeLijst;
+	}
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -102,6 +146,9 @@ public class MusicPlayer extends Application {
 	
 	public void setInformation() {
 		Media currentSong = player.getMedia();
-		information.setText("" + player.getStatus());
+		information.setText(
+				"Artiest: " + huidigeList.get(0).substring(0, huidigeList.get(0).indexOf('-')) + "\n" +
+				"Titel: " + huidigeList.get(0).substring(huidigeList.get(0).indexOf('-')+1) + "\n"
+				);
 	}
 }
