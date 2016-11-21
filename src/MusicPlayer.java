@@ -22,6 +22,7 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 
 public class MusicPlayer extends Application {
 	
@@ -43,8 +44,9 @@ public class MusicPlayer extends Application {
 		songDuration.setText("");
 		information.setText("hier komt info");
 		Slider volumeSlider = new Slider(0, 1, 1);
+		Slider durationSlider = new Slider(0, 1, 1);
 		VBox root = new VBox();
-		root.getChildren().addAll(information, songDuration, volumeSlider);
+		root.getChildren().addAll(information, songDuration, volumeSlider, durationSlider);
 		Scene scene = new Scene(root, 300, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -61,6 +63,7 @@ public class MusicPlayer extends Application {
 					String strCurrent = String.format("%.0f", current);
 					String strPercentage = String.format("%.2f", percentage);
 					songDuration.setText("PLAYING: " + strCurrent + " : " + strTotal + " seconden   " + strPercentage + "%");
+					//durationSlider.setValue(player.getCurrentTime().toSeconds()/song.getDuration().toSeconds()); gaat hakkelen
 				}
 			}
 		}, 0, 1000);
@@ -69,6 +72,15 @@ public class MusicPlayer extends Application {
 			public void changed(ObservableValue<? extends Number> ov,
 					Number old_val, Number new_val) {
 						player.setVolume(new_val.doubleValue());
+			}
+		});
+		
+		durationSlider.valueProperty().addListener(new ChangeListener<Number>() {
+			public void changed(ObservableValue<? extends Number> ov,
+					Number old_val, Number new_val) {
+						double jumpPoint = new_val.doubleValue() * song.getDuration().toSeconds();
+						Duration jumpPointTime = new Duration(jumpPoint*1000);
+						player.seek(jumpPointTime);
 			}
 		});
 	}
