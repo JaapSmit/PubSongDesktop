@@ -1,27 +1,28 @@
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.ObjectMapper;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
+import com.mashape.unirest.request.HttpRequestWithBody;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public class MusicPlayer extends Application {
@@ -34,9 +35,12 @@ public class MusicPlayer extends Application {
 	static ArrayList<String> huidigeList;
 	
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(Stage primaryStage) throws UnirestException {
 		
-		huidigeList = getHuidigeList();
+		//aanroepen rest
+		aanroepenRest();
+		
+		//huidigeList = getHuidigeList();
 		
 		// ui textbox
 		songDuration = new Text();
@@ -50,7 +54,7 @@ public class MusicPlayer extends Application {
 		Scene scene = new Scene(root, 300, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		play(huidigeList.get(0));
+		//play(huidigeList.get(0));
 		
 		new Timer().schedule(new TimerTask() {
 			@Override
@@ -99,7 +103,12 @@ public class MusicPlayer extends Application {
 				System.out.println("Song ended");
 				player.stop();
 				// haal hier de volgende uit de database, evt play met een string starten
-				play(nextSong());
+				try {
+					play(nextSong());
+				} catch (UnirestException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		
@@ -116,11 +125,11 @@ public class MusicPlayer extends Application {
 		
 	}
 		
-	public static String nextSong() {
-		String tmpFirst = huidigeList.get(0);
-		huidigeList.remove(0);
-		String urlSong = huidigeList.get(0);
-		huidigeList.add(tmpFirst);
+	public static String nextSong() throws UnirestException {
+		HttpResponse<AfspeellijstData> afspeellijstDataResponse = Unirest.get("http://localhost:8080/getNextSong").asObject(AfspeellijstData.class);
+		String artiest = afspeellijstDataResponse.getBody().getNummer().getArtiest();
+		String titel = afspeellijstDataResponse.getBody().getNummer().getTitel();
+		String urlSong = artiest + "-" + titel;
 		return urlSong;
 	}
 
@@ -162,5 +171,32 @@ public class MusicPlayer extends Application {
 				"Artiest: " + huidigeList.get(0).substring(0, huidigeList.get(0).indexOf('-')) + "\n" +
 				"Titel: " + huidigeList.get(0).substring(huidigeList.get(0).indexOf('-')+1) + "\n"
 				);
+	}
+	
+	public void aanroepenRest() throws UnirestException {
+		// Only one time
+		Unirest.setObjectMapper(new ObjectMapper() {
+		    private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper
+		                = new com.fasterxml.jackson.databind.ObjectMapper();
+
+		    public <T> T readValue(String value, Class<T> valueType) {
+		        try {
+		            return jacksonObjectMapper.readValue(value, valueType);
+		        } catch (IOException e) {
+		            throw new RuntimeException(e);
+		        }
+		    }
+
+		    public String writeValue(Object value) {
+		        try {
+		            return jacksonObjectMapper.writeValueAsString(value);
+		        } catch (JsonProcessingException e) {
+		            throw new RuntimeException(e);
+		        }
+		    }
+		});
+		
+		// Test delete
+		
 	}
 }
