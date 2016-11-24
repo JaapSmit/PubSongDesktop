@@ -54,7 +54,7 @@ public class MusicPlayer extends Application {
 		Scene scene = new Scene(root, 300, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		//play(huidigeList.get(0));
+		play(firstSong());
 		
 		new Timer().schedule(new TimerTask() {
 			@Override
@@ -91,6 +91,7 @@ public class MusicPlayer extends Application {
 		public void play(String url) {
 			//String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Best10SecIntroSound.mp3";
 			String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3";
+			System.out.println(path);
 			song = new Media(path);
 			//System.out.println(song.getDuration().toSeconds());
 			player = new MediaPlayer(song);
@@ -104,6 +105,7 @@ public class MusicPlayer extends Application {
 				player.stop();
 				// haal hier de volgende uit de database, evt play met een string starten
 				try {
+					System.out.println("next play");
 					play(nextSong());
 				} catch (UnirestException e) {
 					// TODO Auto-generated catch block
@@ -117,59 +119,48 @@ public class MusicPlayer extends Application {
 			public void run() {
 				player.play();
 				playing = true;
-				setInformation();		
+				try {
+					setInformation();
+				} catch (UnirestException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}		
 			}
 		});
 		
 
 		
 	}
-		
-	public static String nextSong() throws UnirestException {
-		HttpResponse<AfspeellijstData> afspeellijstDataResponse = Unirest.get("http://localhost:8080/getNextSong").asObject(AfspeellijstData.class);
-		String artiest = afspeellijstDataResponse.getBody().getNummer().getArtiest();
-		String titel = afspeellijstDataResponse.getBody().getNummer().getTitel();
+	
+	// de eerste moet opgehaald worden zonder de laatste te verwijderen
+	public static String firstSong() throws UnirestException {
+		HttpResponse<AfspeellijstData> afspeellijstDataResponse = Unirest.get("http://localhost:8080/getNumberOneSong").asObject(AfspeellijstData.class);
+		String artiest = afspeellijstDataResponse.getBody().getNummer().getArtiest().replace('/', '-').replace(' ', '_');
+		String titel = afspeellijstDataResponse.getBody().getNummer().getTitel().replace('/', '-').replace(' ', '_');
 		String urlSong = artiest + "-" + titel;
 		return urlSong;
 	}
-
-	public static ArrayList<String> getHuidigeList() {
-		ArrayList<String> huidigeLijst = new ArrayList<>();
-		BufferedReader file = null;
-		try {
-			file = new BufferedReader(new FileReader("C:/Users/Student/workspace/PubSongDesktop/src/huidigAfspeellijst.txt"));
-		    StringBuilder sb = new StringBuilder();
-		    String line = file.readLine();
-
-		    while (line != null) {
-		    	if(!line.isEmpty()) {
-		    		huidigeLijst.add(line);
-		    	}
-		        //sb.append(System.lineSeparator());
-		        line = file.readLine();
-		    }
-		    //String everything = sb.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				file.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return huidigeLijst;
+	
+	// verwijder de laatst afgespeelde en voeg de volgende in de lijst toe
+	public static String nextSong() throws UnirestException {
+		HttpResponse<AfspeellijstData> afspeellijstDataResponse = Unirest.get("http://localhost:8080/getNextSong").asObject(AfspeellijstData.class);
+		String artiest = afspeellijstDataResponse.getBody().getNummer().getArtiest().replace('/', '-').replace(' ', '_');
+		String titel = afspeellijstDataResponse.getBody().getNummer().getTitel().replace('/', '-').replace(' ', '_');
+		String urlSong = artiest + "-" + titel;
+		return urlSong;
 	}
 	
 	public static void main(String[] args) {
 		launch(args);
 	}
 	
-	public void setInformation() {
-		Media currentSong = player.getMedia();
+	public void setInformation() throws UnirestException {
+		HttpResponse<AfspeellijstData> afspeellijstDataResponse = Unirest.get("http://localhost:8080/getNumberOneSong").asObject(AfspeellijstData.class);
+		String artiest = afspeellijstDataResponse.getBody().getNummer().getArtiest().replace('/', '-').replace(' ', '_');
+		String titel = afspeellijstDataResponse.getBody().getNummer().getTitel().replace('/', '-').replace(' ', '_');
 		information.setText(
-				"Artiest: " + huidigeList.get(0).substring(0, huidigeList.get(0).indexOf('-')) + "\n" +
-				"Titel: " + huidigeList.get(0).substring(huidigeList.get(0).indexOf('-')+1) + "\n"
+				"Artiest: " + artiest + "\n" +
+				"Titel: " + titel + "\n"
 				);
 	}
 	
