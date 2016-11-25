@@ -3,6 +3,7 @@ public class AfspeellijstData {
 	private Nummer nummer;
 	private int votes;
 	private boolean adminVote;
+	private boolean playing;
 	
 
 	public long getId() {
@@ -30,9 +31,12 @@ public class AfspeellijstData {
 	public void setAdminVote(boolean adminVote) {
 		this.adminVote = adminVote;
 	}
-	
-	
-	
-	
+	public boolean isPlaying() {
+		return playing;
+	}
+	public void setPlaying(boolean playing) {
+		this.playing = playing;
+	}
+		
 	
 }
