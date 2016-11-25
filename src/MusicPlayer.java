@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -91,6 +92,12 @@ public class MusicPlayer extends Application {
 		public void play(String url) {
 			//String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Best10SecIntroSound.mp3";
 			String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3";
+			//Check if path exists
+			File f = new File("C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3");
+			if(!f.exists()) {
+				// nope, ready to rickroll
+				path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Rick_Astley-Never_Gonna_Give_You_Up.mp3";
+			}
 			System.out.println(path);
 			song = new Media(path);
 			//System.out.println(song.getDuration().toSeconds());
@@ -186,8 +193,6 @@ public class MusicPlayer extends Application {
 		        }
 		    }
 		});
-		
-		// Test delete
 		
 	}
 }
