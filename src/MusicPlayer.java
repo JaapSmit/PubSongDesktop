@@ -41,8 +41,6 @@ public class MusicPlayer extends Application {
 		//aanroepen rest
 		aanroepenRest();
 		
-		//huidigeList = getHuidigeList();
-		
 		// ui textbox
 		songDuration = new Text();
 		information = new Text();
@@ -90,7 +88,6 @@ public class MusicPlayer extends Application {
 		});
 	}
 		public void play(String url) {
-			//String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Best10SecIntroSound.mp3";
 			String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3";
 			//Check if path exists
 			File f = new File("C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3");
@@ -98,24 +95,18 @@ public class MusicPlayer extends Application {
 				// nope, ready to rickroll
 				path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Rick_Astley-Never_Gonna_Give_You_Up.mp3";
 			}
-			System.out.println(path);
 			song = new Media(path);
-			//System.out.println(song.getDuration().toSeconds());
 			player = new MediaPlayer(song);
-			//player.play();
 			
 		player.setOnEndOfMedia(new Runnable() {
 			@Override
 			public void run() {
 				playing = false;
-				System.out.println("Song ended");
 				player.stop();
 				// haal hier de volgende uit de database, evt play met een string starten
 				try {
-					System.out.println("next play");
 					play(nextSong());
 				} catch (UnirestException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -129,7 +120,6 @@ public class MusicPlayer extends Application {
 				try {
 					setInformation();
 				} catch (UnirestException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}		
 			}
