@@ -88,12 +88,12 @@ public class MusicPlayer extends Application {
 		});
 	}
 		public void play(String url) {
-			String path = "file:////Users/pieterhuijgens/Documents/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3";
+			String path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3";
 			//Check if path exists
-			File f = new File("/Users/pieterhuijgens/Documents/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3");
+			File f = new File("C:/Users/Student/workspace/PubSongDesktop/src/Muziek/" + url + ".mp3");
 			if(!f.exists()) {
 				// nope, ready to rickroll
-				path = "file:////Users/pieterhuijgens/Documents/workspace/PubSongDesktop/src/Muziek/Rick_Astley-Never_Gonna_Give_You_Up.mp3";
+				path = "file:///C:/Users/Student/workspace/PubSongDesktop/src/Muziek/Rick_Astley-Never_Gonna_Give_You_Up.mp3";
 			}
 			song = new Media(path);
 			player = new MediaPlayer(song);
